@@ -61,6 +61,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
+import com.metrolist.music.ui.theme.AuraTokens
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -287,9 +289,9 @@ private fun NewMiniPlayer(
 
     // Memoize colors
     val backgroundColor = when (miniPlayerBackground) {
-        MiniPlayerBackgroundStyle.DEFAULT    -> MaterialTheme.colorScheme.surfaceContainer
+        MiniPlayerBackgroundStyle.DEFAULT    -> if (useDarkTheme) AuraTokens.GlassSurface else MaterialTheme.colorScheme.surfaceContainer
         MiniPlayerBackgroundStyle.TRANSPARENT -> Color.Black.copy(alpha = 0.25f)
-        MiniPlayerBackgroundStyle.BLUR       -> MaterialTheme.colorScheme.surfaceContainer
+        MiniPlayerBackgroundStyle.BLUR       -> if (useDarkTheme) AuraTokens.GlassSurface else MaterialTheme.colorScheme.surfaceContainer
         MiniPlayerBackgroundStyle.GRADIENT   -> MaterialTheme.colorScheme.surfaceContainer
         MiniPlayerBackgroundStyle.PURE_BLACK -> Color.Black
     }
@@ -379,9 +381,14 @@ private fun NewMiniPlayer(
                     .then(if (isTabletLandscape) Modifier.width(500.dp).align(Alignment.Center) else Modifier.fillMaxWidth())
                     .height(64.dp)
                     .offset { IntOffset(offsetXAnimatable.value.roundToInt(), 0) }
+                    .shadow(elevation = 10.dp, shape = RoundedCornerShape(32.dp), spotColor = Color.Black.copy(alpha = 0.6f))
                     .clip(RoundedCornerShape(32.dp))
                     .background(color = backgroundColor)
-                    .border(1.dp, outlineColor.copy(alpha = 0.3f), RoundedCornerShape(32.dp))
+                    .border(
+                        width = 1.dp,
+                        color = if (useDarkTheme) AuraTokens.GlassBorder else outlineColor.copy(alpha = 0.25f),
+                        shape = RoundedCornerShape(32.dp)
+                    )
                     .clickable(
                         interactionSource = interactionSource,
                         indication = LocalIndication.current,

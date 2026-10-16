@@ -65,6 +65,7 @@ import com.metrolist.music.constants.SearchSourceKey
 import com.metrolist.music.db.entities.SearchHistory
 import com.metrolist.music.playback.queues.YouTubeQueue
 import com.metrolist.music.ui.component.HideOnScrollFAB
+import com.metrolist.music.ui.theme.AuraTokens
 import com.metrolist.music.utils.SearchRoutes
 import com.metrolist.music.utils.rememberEnumPreference
 import com.metrolist.music.utils.rememberPreference
@@ -273,11 +274,11 @@ fun SearchScreen(
                 },
                 colors =
                     TopAppBarDefaults.topAppBarColors(
-                        containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer,
+                        containerColor = if (pureBlack) Color.Black else AuraTokens.Obsidian,
                     ),
             )
         },
-        containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.background,
+        containerColor = if (pureBlack) Color.Black else AuraTokens.Obsidian,
     ) { paddingValues ->
         Box(
             modifier =

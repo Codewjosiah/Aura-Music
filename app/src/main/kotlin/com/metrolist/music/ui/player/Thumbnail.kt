@@ -10,6 +10,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
@@ -202,6 +205,7 @@ fun Thumbnail(
     isPlayerExpanded: () -> Boolean = { true },
     isLandscape: Boolean = false,
     isListenTogetherGuest: Boolean = false,
+    onCollapse: (() -> Unit)? = null,
 ) {
     val playerConnection = LocalPlayerConnection.current ?: return
     val context = LocalContext.current
@@ -209,6 +213,7 @@ fun Thumbnail(
 
     // Collect states
     val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
+    val currentSong by playerConnection.currentSong.collectAsStateWithLifecycle()
     val error by playerConnection.error.collectAsState()
     val queueTitle by playerConnection.queueTitle.collectAsStateWithLifecycle()
     val canSkipPrevious by playerConnection.canSkipPrevious.collectAsStateWithLifecycle()
@@ -338,7 +343,10 @@ fun Thumbnail(
                     ThumbnailHeader(
                         queueTitle = queueTitle,
                         albumTitle = mediaMetadata?.album?.title,
-                        textColor = textBackgroundColor
+                        textColor = textBackgroundColor,
+                        onCollapse = onCollapse,
+                        onFavoriteClick = playerConnection::toggleLike,
+                        isLiked = currentSong?.song?.liked == true,
                     )
                 }
                 
@@ -431,54 +439,91 @@ fun Thumbnail(
 }
 
 /**
- * Header component showing "Now Playing" and queue/album title.
+ * Header component showing "Now Playing" with circular dark glass back and favorite buttons.
+ * Faithful reproduction of Reference Screen 2 (Image 1).
  */
 @Composable
 private fun ThumbnailHeader(
     queueTitle: String?,
     albumTitle: String?,
     textColor: Color,
+    onCollapse: (() -> Unit)? = null,
+    onFavoriteClick: (() -> Unit)? = null,
+    isLiked: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val listenTogetherManager = LocalListenTogetherManager.current
     val listenTogetherRoleState = listenTogetherManager?.role?.collectAsStateWithLifecycle(initialValue = RoomRole.NONE)
     val isListenTogetherGuest = listenTogetherRoleState?.value == RoomRole.GUEST
-    Box(
+    androidx.compose.foundation.layout.Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 20.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        // Back / Collapse circular dark glass button
+        Box(
+            modifier = Modifier
+                .size(42.dp)
+                .clip(CircleShape)
+                .background(Color(0xFF1E1E24))
+                .border(1.dp, Color(0x26FFFFFF), CircleShape)
+                .clickable { onCollapse?.invoke() },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.arrow_back),
+                contentDescription = "Back",
+                tint = Color.White,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        // Center Now Playing title
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = 48.dp)
+                .weight(1f)
+                .padding(horizontal = 12.dp)
         ) {
-            // Listen Together indicator
-            if (listenTogetherRoleState?.value != RoomRole.NONE) {
-                Text(
-                    text = if (listenTogetherRoleState?.value == RoomRole.HOST) "Hosting Listen Together" else "Listening Together",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = textColor
+            Text(
+                text = stringResource(R.string.now_playing),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 15.sp,
+                    color = Color.White
                 )
-            } else {
-                Text(
-                    text = stringResource(R.string.now_playing),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = textColor
-                )
-            }
+            )
             val playingFrom = queueTitle ?: albumTitle
             if (!playingFrom.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = playingFrom,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = textColor.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = textColor.copy(alpha = 0.7f),
                     maxLines = 1,
                     modifier = Modifier.basicMarquee()
                 )
             }
+        }
+
+        // Heart / Favorite circular dark glass button
+        Box(
+            modifier = Modifier
+                .size(42.dp)
+                .clip(CircleShape)
+                .background(Color(0xFF1E1E24))
+                .border(1.dp, Color(0x26FFFFFF), CircleShape)
+                .clickable { onFavoriteClick?.invoke() },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(if (isLiked) R.drawable.favorite else R.drawable.favorite_border),
+                contentDescription = "Favorite",
+                tint = if (isLiked) Color(0xFFD2F843) else Color.White,
+                modifier = Modifier.size(19.dp)
+            )
         }
     }
 }
@@ -559,7 +604,8 @@ private fun ThumbnailItem(
         Box(
             modifier = Modifier
                 .size(dimensions.thumbnailSize)
-                .clip(RoundedCornerShape(dimensions.cornerRadius))
+                .clip(CircleShape)
+                .border(1.dp, Color(0x26FFFFFF), CircleShape)
         ) {
             if (hidePlayerThumbnail) {
                 HiddenThumbnailPlaceholder(textBackgroundColor = textBackgroundColor)

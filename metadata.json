@@ -1,0 +1,6 @@
+{
+  "name": "AURA Music",
+  "description": "A premium Android music client in the AURA ecosystem",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

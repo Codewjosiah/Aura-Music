@@ -5,15 +5,25 @@
 
 package com.metrolist.music.ui.component
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +32,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -29,7 +41,9 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.metrolist.music.ui.screens.Screens
+import com.metrolist.music.ui.theme.AuraTokens
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 
@@ -57,12 +71,19 @@ fun AppNavigationRail(
     onSearchLongClick: (() -> Unit)? = null,
     onHomeLongHold: (() -> Unit)? = null,
 ) {
-    val containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
+    val containerColor = if (pureBlack) Color.Black else AuraTokens.DarkCharcoal
     val haptics = LocalHapticFeedback.current
     val viewConfiguration = LocalViewConfiguration.current
 
     NavigationRail(
-        modifier = modifier,
+        modifier = modifier.drawBehind {
+            drawLine(
+                color = AuraTokens.GlassBorderSubtle,
+                start = Offset(size.width, 0f),
+                end = Offset(size.width, size.height),
+                strokeWidth = 1.dp.toPx()
+            )
+        },
         containerColor = containerColor
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -114,6 +135,11 @@ fun AppNavigationRail(
                     }
                     // Long presses are handled via InteractionSource
                 },
+                colors = NavigationRailItemDefaults.colors(
+                    selectedIconColor = Color.White,
+                    indicatorColor = Color.White.copy(alpha = 0.14f),
+                    unselectedIconColor = AuraTokens.SilverSubtext,
+                ),
                 interactionSource = interactionSource,
                 icon = {
                     Icon(
@@ -139,80 +165,98 @@ fun AppNavigationBar(
     onSearchLongClick: (() -> Unit)? = null,
     onHomeLongHold: (() -> Unit)? = null,
 ) {
-    val containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
-    val contentColor = if (pureBlack) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
     val haptics = LocalHapticFeedback.current
     val viewConfiguration = LocalViewConfiguration.current
 
-    NavigationBar(
-        modifier = modifier,
-        containerColor = containerColor,
-        contentColor = contentColor
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(AuraTokens.RadiusPill))
+            .background(if (pureBlack) Color(0xF00A0A0C) else AuraTokens.CharcoalGlass)
+            .border(
+                1.dp,
+                AuraTokens.GlassBorder,
+                RoundedCornerShape(AuraTokens.RadiusPill)
+            ),
+        contentAlignment = Alignment.Center
     ) {
-        navigationItems.forEach { screen ->
-            val isSelected = remember(currentRoute, screen.route) {
-                isRouteSelected(currentRoute, screen.route, navigationItems)
-            }
-            val currentIsSelected by rememberUpdatedState(isSelected)
-            val iconRes = remember(isSelected, screen) {
-                if (isSelected) screen.iconIdActive else screen.iconIdInactive
-            }
+        NavigationBar(
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = Color.Transparent,
+            contentColor = Color.White
+        ) {
+            navigationItems.forEach { screen ->
+                val isSelected = remember(currentRoute, screen.route) {
+                    isRouteSelected(currentRoute, screen.route, navigationItems)
+                }
+                val currentIsSelected by rememberUpdatedState(isSelected)
+                val iconRes = remember(isSelected, screen) {
+                    if (isSelected) screen.iconIdActive else screen.iconIdInactive
+                }
 
-            val isSearchItem = screen == Screens.Search && onSearchLongClick != null
-            val isHomeHoldItem = screen == Screens.Home && onHomeLongHold != null
-            val interactionSource = remember { MutableInteractionSource() }
+                val isSearchItem = screen == Screens.Search && onSearchLongClick != null
+                val isHomeHoldItem = screen == Screens.Home && onHomeLongHold != null
+                val interactionSource = remember { MutableInteractionSource() }
 
-            // Long press detection using InteractionSource
-            if (isSearchItem || isHomeHoldItem) {
-                LaunchedEffect(interactionSource) {
-                    var isLongClick = false
-                    interactionSource.interactions.collectLatest { interaction ->
-                        when (interaction) {
-                            is PressInteraction.Press -> {
-                                isLongClick = false
-                                delay(if (isHomeHoldItem) 15_000L else viewConfiguration.longPressTimeoutMillis)
-                                isLongClick = true
-                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                if (isHomeHoldItem) onHomeLongHold.invoke() else onSearchLongClick?.invoke()
-                            }
-                            is PressInteraction.Release -> {
-                                if (!isLongClick) {
-                                    onItemClick(screen, currentIsSelected)
+                // Long press detection using InteractionSource
+                if (isSearchItem || isHomeHoldItem) {
+                    LaunchedEffect(interactionSource) {
+                        var isLongClick = false
+                        interactionSource.interactions.collectLatest { interaction ->
+                            when (interaction) {
+                                is PressInteraction.Press -> {
+                                    isLongClick = false
+                                    delay(if (isHomeHoldItem) 15_000L else viewConfiguration.longPressTimeoutMillis)
+                                    isLongClick = true
+                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    if (isHomeHoldItem) onHomeLongHold.invoke() else onSearchLongClick?.invoke()
                                 }
-                            }
-                            is PressInteraction.Cancel -> {
-                                isLongClick = false
+                                is PressInteraction.Release -> {
+                                    if (!isLongClick) {
+                                        onItemClick(screen, currentIsSelected)
+                                    }
+                                }
+                                is PressInteraction.Cancel -> {
+                                    isLongClick = false
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            NavigationBarItem(
-                selected = isSelected,
-                onClick = {
-                    if (!isSearchItem && !isHomeHoldItem) {
-                        onItemClick(screen, currentIsSelected)
-                    }
-                    // Long presses are handled via InteractionSource
-                },
-                interactionSource = interactionSource,
-                icon = {
-                    Icon(
-                        painter = painterResource(id = iconRes),
-                        contentDescription = stringResource(screen.titleId)
-                    )
-                },
-                label = if (!slimNav) {
-                    {
-                        Text(
-                            text = stringResource(screen.titleId),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                NavigationBarItem(
+                    selected = isSelected,
+                    onClick = {
+                        if (!isSearchItem && !isHomeHoldItem) {
+                            onItemClick(screen, currentIsSelected)
+                        }
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = AuraTokens.ElectricLimeText,
+                        selectedTextColor = AuraTokens.ElectricLime,
+                        indicatorColor = AuraTokens.ElectricLime,
+                        unselectedIconColor = AuraTokens.SilverSubtext,
+                        unselectedTextColor = AuraTokens.SilverSubtext
+                    ),
+                    interactionSource = interactionSource,
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = iconRes),
+                            contentDescription = stringResource(screen.titleId)
                         )
-                    }
-                } else null
-            )
+                    },
+                    label = if (!slimNav) {
+                        {
+                            Text(
+                                text = stringResource(screen.titleId),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    } else null
+                )
+            }
         }
     }
 }

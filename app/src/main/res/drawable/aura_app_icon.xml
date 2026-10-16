@@ -1,0 +1,53 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.55"
+        android:scaleY="0.55"
+        android:translateX="24.3"
+        android:translateY="24.3">
+        <!-- Subtle luminous outer aura glow -->
+        <path
+            android:pathData="M60,10 C87.614,10 110,32.386 110,60 C110,87.614 87.614,110 60,110 C32.386,110 10,87.614 10,60 C10,32.386 32.386,10 60,10 Z"
+            android:strokeColor="#33FFFFFF"
+            android:strokeWidth="1.5" />
+        <!-- Secondary acoustic ring -->
+        <path
+            android:pathData="M60,22 C80.987,22 98,39.013 98,60 C98,80.987 80.987,98 60,98 C39.013,98 22,80.987 22,60 C22,39.013 39.013,22 60,22 Z"
+            android:strokeColor="#66FFFFFF"
+            android:strokeWidth="2.5" />
+        <!-- Core luminous ring -->
+        <path
+            android:pathData="M60,34 C74.359,34 86,45.641 86,60 C86,74.359 74.359,86 60,86 C45.641,86 34,74.359 34,60 C34,45.641 45.641,34 60,34 Z"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3.5" />
+        <!-- Center Sound Waveform -->
+        <path
+            android:pathData="M44,55 L44,65"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3.5"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M52,48 L52,72"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3.5"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M60,42 L60,78"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="4.0"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M68,48 L68,72"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3.5"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M76,55 L76,65"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3.5"
+            android:strokeLineCap="round" />
+    </group>
+</vector>

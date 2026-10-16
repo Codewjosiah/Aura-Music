@@ -17,7 +17,9 @@ import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
+import com.metrolist.music.ui.theme.AuraTokens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -73,15 +75,26 @@ fun <E> ChipsRow(
         Spacer(Modifier.width(12.dp))
 
         chips.forEach { (value, label) ->
+            val isSelected = currentValue == value
             FilterChip(
-                label = { Text(label) },
-                selected = currentValue == value,
+                label = {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Medium
+                        )
+                    )
+                },
+                selected = isSelected,
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = containerColor,
+                    containerColor = AuraTokens.CharcoalButton,
+                    selectedContainerColor = AuraTokens.ElectricLime,
+                    selectedLabelColor = AuraTokens.ElectricLimeText,
+                    labelColor = AuraTokens.SilverSubtext
                 ),
                 onClick = { onValueUpdate(value) },
-                shape = RoundedCornerShape(16.dp),
-                border = null
+                shape = RoundedCornerShape(AuraTokens.RadiusPill),
+                border = if (!isSelected) BorderStroke(1.dp, AuraTokens.GlassBorderSubtle) else null
             )
 
             Spacer(Modifier.width(8.dp))

@@ -6,13 +6,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 /**
- * Stub CastButton for F-Droid builds.
- * Does not render anything - Cast not available without GMS.
+ * Stub CastButton for standalone builds.
  */
 @Composable
 fun CastButton(
     modifier: Modifier = Modifier,
     tintColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
-    // No-op: Cast not available in FOSS build
+    // No-op: Cast not available
 }

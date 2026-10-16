@@ -138,6 +138,7 @@ import com.metrolist.music.LocalDatabase
 import com.metrolist.music.LocalDownloadUtil
 import com.metrolist.music.LocalListenTogetherManager
 import com.metrolist.music.LocalPlayerConnection
+import com.metrolist.music.ui.theme.AuraTokens
 import com.metrolist.music.R
 import com.metrolist.music.constants.CropAlbumArtKey
 import com.metrolist.music.constants.DarkModeKey
@@ -482,7 +483,7 @@ fun BottomSheetPlayer(
                 playerBackground == PlayerBackgroundStyle.GRADIENT -> {
                 when (playerButtonsStyle) {
                     PlayerButtonsStyle.DEFAULT -> {
-                        Pair(Color.White, Color.Black)
+                        Pair(AuraTokens.ElectricLime, AuraTokens.ElectricLimeText)
                     }
 
                     PlayerButtonsStyle.PRIMARY -> {
@@ -505,7 +506,7 @@ fun BottomSheetPlayer(
                 when (playerButtonsStyle) {
                     PlayerButtonsStyle.DEFAULT -> {
                         if (useDarkTheme) {
-                            Pair(Color.White, Color.Black)
+                            Pair(AuraTokens.ElectricLime, AuraTokens.ElectricLimeText)
                         } else {
                             Pair(Color.Black, Color.White)
                         }
@@ -536,7 +537,7 @@ fun BottomSheetPlayer(
                 when (playerButtonsStyle) {
                     PlayerButtonsStyle.DEFAULT -> {
                         Pair(
-                            Color.White.copy(alpha = 0.2f),
+                            AuraTokens.CharcoalButton,
                             Color.White,
                         )
                     }
@@ -561,8 +562,8 @@ fun BottomSheetPlayer(
                 when (playerButtonsStyle) {
                     PlayerButtonsStyle.DEFAULT -> {
                         Pair(
-                            MaterialTheme.colorScheme.surfaceContainerHighest,
-                            MaterialTheme.colorScheme.onSurface,
+                            if (useDarkTheme) AuraTokens.CharcoalButton else MaterialTheme.colorScheme.surfaceContainerHighest,
+                            if (useDarkTheme) Color.White else MaterialTheme.colorScheme.onSurface,
                         )
                     }
 
@@ -816,12 +817,14 @@ fun BottomSheetPlayer(
     val bottomSheetBackgroundColor =
         when (playerBackground) {
             PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT -> {
-                MaterialTheme.colorScheme.surfaceContainer
+                if (useDarkTheme) AuraTokens.Obsidian else MaterialTheme.colorScheme.surfaceContainer
             }
 
             else -> {
                 if (useBlackBackground) {
                     Color.Black
+                } else if (useDarkTheme) {
+                    AuraTokens.Obsidian
                 } else {
                     MaterialTheme.colorScheme.surfaceContainer
                 }
@@ -1890,6 +1893,7 @@ fun BottomSheetPlayer(
                                     isPlayerExpanded = isExpandedProvider,
                                     isLandscape = true,
                                     isListenTogetherGuest = isListenTogetherGuest,
+                                    onCollapse = { scope.launch { state.collapseSoft() } },
                                 )
                             }
                         }
@@ -1952,6 +1956,7 @@ fun BottomSheetPlayer(
                                     modifier = Modifier.nestedScroll(state.preUpPostDownNestedScrollConnection),
                                     isPlayerExpanded = isExpandedProvider,
                                     isListenTogetherGuest = isListenTogetherGuest,
+                                    onCollapse = { scope.launch { state.collapseSoft() } },
                                 )
                             }
                         }

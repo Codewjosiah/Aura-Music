@@ -136,6 +136,8 @@ import com.metrolist.music.playback.queues.YouTubeAlbumRadio
 import com.metrolist.music.playback.queues.YouTubeQueue
 import com.metrolist.music.ui.component.AlbumGridItem
 import com.metrolist.music.ui.component.ArtistGridItem
+import com.metrolist.music.ui.component.AuraCuratedSection
+import com.metrolist.music.ui.component.AuraHomeHeader
 import com.metrolist.music.ui.component.ChipsRow
 import com.metrolist.music.ui.component.HideOnScrollFAB
 import com.metrolist.music.ui.component.LocalBottomSheetPageState
@@ -1189,6 +1191,14 @@ fun HomeScreen(
                 state = lazylistState,
                 contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
             ) {
+                item(key = "aura_home_header") {
+                    AuraHomeHeader(
+                        accountName = accountName,
+                        onSearchClick = { navController.navigate(Screens.Search.route) },
+                        onHistoryClick = { navController.navigate("history") },
+                    )
+                }
+
                 item {
                     ChipsRow(
                         chips = homePage?.chips?.map { it to it.title } ?: emptyList(),
@@ -1197,6 +1207,31 @@ fun HomeScreen(
                             viewModel.toggleChip(it)
                         },
                     )
+                }
+
+                if (selectedChip == null) {
+                    item(key = "aura_curated_banner") {
+                        val firstItem = homePage?.sections?.firstOrNull()?.items?.firstOrNull()
+                        AuraCuratedSection(
+                            onPlayClick = {
+                                firstItem?.let { item ->
+                                    when (item) {
+                                        is SongItem -> playerConnection?.playQueue(
+                                            YouTubeQueue(
+                                                WatchEndpoint(videoId = item.id),
+                                                item.toMediaMetadata(),
+                                            )
+                                        )
+                                        else -> navController.navigate("online_playlist/${item.id}")
+                                    }
+                                }
+                            },
+                            onCardClick = {
+                                navController.navigate("new_release")
+                            },
+                            artworkUrl = firstItem?.thumbnail
+                        )
+                    }
                 }
 
                 if (isLoading && homePage?.chips.isNullOrEmpty()) {

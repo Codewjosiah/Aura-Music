@@ -254,7 +254,7 @@ fun AboutScreen(
             ) {
                 Image(
                     painter = painterResource(R.drawable.small_icon),
-                    contentDescription = stringResource(R.string.metrolist),
+                    contentDescription = stringResource(R.string.app_name),
                     colorFilter = ColorFilter.tint(
                         color = MaterialTheme.colorScheme.primary,
                         blendMode = BlendMode.SrcIn,
@@ -265,12 +265,10 @@ fun AboutScreen(
                 Spacer(Modifier.width(20.dp))
         
                 Column {
-                    val metrolistName = stringResource(R.string.metrolist)
-                        .lowercase(Locale.getDefault())
-                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                    val appName = stringResource(R.string.app_name)
 
                     Text(
-                        text = metrolistName,
+                        text = appName,
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.onSurface,

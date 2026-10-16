@@ -45,7 +45,7 @@ android {
         val baseVersionName = requireNotNull(versionName)
         buildConfigField("String", "BASE_VERSION_NAME", "\"$baseVersionName\"")
         buildCommit?.let { versionName = "$baseVersionName+$it" }
-        resValue("string", "app_name", appNameOverride ?: "Metrolist")
+        resValue("string", "app_name", appNameOverride ?: "AURA Music")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -62,57 +62,22 @@ android {
         buildConfigField("String", "LASTFM_SECRET", "\"$lastFmSecret\"")
         buildConfigField("String", "ARCHITECTURE", "\"universal\"")
         buildConfigField("Long", "DISCORD_APP_ID", "1447278780795064401L")
-    }
-
-    flavorDimensions += listOf("variant")
-    productFlavors {
-        // FOSS - Updater, but no gcast
-        create("foss") {
-            dimension = "variant"
-            isDefault = true
-            buildConfigField("Boolean", "CAST_AVAILABLE", "false")
-            buildConfigField("Boolean", "UPDATER_AVAILABLE", "true")
-        }
-
-        // GMS - Updater and gcast
-        create("gms") {
-            dimension = "variant"
-            buildConfigField("Boolean", "CAST_AVAILABLE", "true")
-            buildConfigField("Boolean", "UPDATER_AVAILABLE", "true")
-        }
-
-        // IzzyOnDroid - no gcast, no updater - the ONLY F-droid compliant build
-        create("izzy") {
-            dimension = "variant"
-            buildConfigField("Boolean", "CAST_AVAILABLE", "false")
-            buildConfigField("Boolean", "UPDATER_AVAILABLE", "false")
-        }
+        buildConfigField("Boolean", "CAST_AVAILABLE", "false")
+        buildConfigField("Boolean", "UPDATER_AVAILABLE", "true")
     }
 
     signingConfigs {
-        create("persistentDebug") {
-            storeFile = persistentDebugKeystoreFile
+        create("debugConfig") {
+            storeFile = file("${rootDir}/debug.keystore")
             storePassword = "android"
             keyAlias = "androiddebugkey"
             keyPassword = "android"
-        }
-        create("workflowDebug") {
-            storeFile = workflowDebugKeystoreFile ?: persistentDebugKeystoreFile
-            storePassword = debugKeystorePassword
-            keyAlias = debugKeyAlias
-            keyPassword = debugKeyPassword
         }
         create("release") {
             storeFile = file("keystore/release.keystore")
             storePassword = System.getenv("STORE_PASSWORD")
             keyAlias = System.getenv("KEY_ALIAS")
             keyPassword = System.getenv("KEY_PASSWORD")
-        }
-        getByName("debug") {
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-            storePassword = "android"
-            storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
         }
     }
 
@@ -128,21 +93,9 @@ android {
             )
         }
         debug {
-            if (applicationIdOverride == null) {
-                applicationIdSuffix = ".debug"
-            }
             isDebuggable = true
-            if (appNameOverride == null) {
-                resValue("string", "app_name", "Metrolist Debug")
-            }
-            signingConfig =
-                if (workflowDebugKeystoreFile != null) {
-                    signingConfigs.getByName("workflowDebug")
-                } else if (persistentDebugKeystoreFile.exists()) {
-                    signingConfigs.getByName("persistentDebug")
-                } else {
-                    signingConfigs.getByName("debug")
-                }
+            signingConfig = signingConfigs.getByName("debugConfig")
+            resValue("string", "app_name", "AURA Music")
         }
     }
 
@@ -285,11 +238,6 @@ dependencies {
     implementation(libs.media3)
     implementation(libs.media3.session)
     implementation(libs.media3.okhttp)
-
-    // Google Cast - only included in GMS flavor (not available in F-Droid/FOSS builds)
-    "gmsImplementation"(libs.media3.cast)
-    "gmsImplementation"(libs.mediarouter)
-    "gmsImplementation"(libs.cast.framework)
 
     implementation(libs.room.runtime)
     implementation(libs.kuromoji.ipadic)

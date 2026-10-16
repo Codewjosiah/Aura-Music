@@ -163,7 +163,7 @@ data class SearchSummaryPage(
                             renderer.header?.musicCardShelfHeaderBasicRenderer?.title?.runs
                                 ?.joinToString(separator = "") { it.text }
                                 ?: return null,
-                        author = PlaylistPage.ownerFromByline(renderer.subtitle.runs),
+                        author = PageHelper.extractArtists(renderer.subtitle.runs).firstOrNull(),
                         songCountText = null,
                         thumbnail = renderer.thumbnail.getThumbnailUrl() ?: return null,
                         playEndpoint =
@@ -191,7 +191,7 @@ data class SearchSummaryPage(
                             renderer.header?.musicCardShelfHeaderBasicRenderer?.title?.runs
                                 ?.joinToString(separator = "") { it.text }
                                 ?: return null,
-                        author = PodcastPage.extractPodcastByline(renderer.subtitle.runs).firstOrNull(),
+                        author = PageHelper.extractArtists(renderer.subtitle.runs).firstOrNull(),
                         episodeCountText = null,
                         thumbnail = renderer.thumbnail.getThumbnailUrl() ?: return null,
                         playEndpoint =

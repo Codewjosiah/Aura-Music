@@ -25,10 +25,23 @@ import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
 import com.materialkolor.score.Score
 
-val DefaultThemeColor = Color(0xFFED5564)
+val DefaultThemeColor = Color(0xFFF4F4F5)
 
 @Composable
 fun MetrolistTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    pureBlack: Boolean = false,
+    themeColor: Color = DefaultThemeColor,
+    content: @Composable () -> Unit,
+) = AuraTheme(
+    darkTheme = darkTheme,
+    pureBlack = pureBlack,
+    themeColor = themeColor,
+    content = content,
+)
+
+@Composable
+fun AuraTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     pureBlack: Boolean = false,
     themeColor: Color = DefaultThemeColor,
@@ -52,7 +65,7 @@ fun MetrolistTheme(
         )
     }
 
-    // Apply pureBlack modification if needed, similar to original logic
+    // Apply pureBlack modification if needed, creating deep OLED black surfaces
     val colorScheme = remember(baseColorScheme, pureBlack, darkTheme) {
         if (darkTheme && pureBlack) {
             baseColorScheme.pureBlack(true)
@@ -61,7 +74,6 @@ fun MetrolistTheme(
         }
     }
 
-    // Use standard MaterialTheme instead of MaterialExpressiveTheme
     MaterialTheme(
         colorScheme = colorScheme,
         content = content,

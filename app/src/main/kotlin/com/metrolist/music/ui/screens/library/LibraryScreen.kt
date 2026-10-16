@@ -34,6 +34,7 @@ fun LibraryScreen() {
         Row {
             ChipsRow(
                 chips = listOf(
+                    LibraryFilter.LIBRARY to "All",
                     LibraryFilter.PLAYLISTS to stringResource(R.string.filter_playlists),
                     LibraryFilter.SONGS to stringResource(R.string.filter_songs),
                     LibraryFilter.ALBUMS to stringResource(R.string.filter_albums),
@@ -42,7 +43,7 @@ fun LibraryScreen() {
                 ),
                 currentValue = filterType,
                 onValueUpdate = {
-                    filterType = if (filterType == it) LibraryFilter.LIBRARY else it
+                    filterType = it
                 },
                 modifier = Modifier.weight(1f),
             )
